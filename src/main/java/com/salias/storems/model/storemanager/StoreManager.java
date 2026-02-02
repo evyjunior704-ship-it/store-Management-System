@@ -1,7 +1,8 @@
-package com.salias.storems.model.store;
+package com.salias.storems.model.storemanager;
 
 
 import com.salias.storems.model.employee.Employee;
+import com.salias.storems.model.store.Store;
 import jakarta.persistence.*;
 
 @Entity
