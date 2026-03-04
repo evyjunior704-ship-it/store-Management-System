@@ -4,7 +4,7 @@ import com.salias.storems.model.employee.Employee;
 import jakarta.persistence.*;
 
 @Entity
-public class EmergencyInfo {
+public class  EmergencyInfo {
 
     @Id
     @SequenceGenerator(

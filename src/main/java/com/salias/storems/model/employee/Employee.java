@@ -137,4 +137,13 @@ public class Employee {
     public void setEmpFirstName(String empFirstName) {
         this.empFirstName = empFirstName;
     }
+
+    // ADD: needed for DTO/service mapping
+    public Store getStoreAssociatedTo() {
+        return storeAssociatedTo;
+    }
+
+    public void setStoreAssociatedTo(Store storeAssociatedTo) {
+        this.storeAssociatedTo = storeAssociatedTo;
+    }
 }
