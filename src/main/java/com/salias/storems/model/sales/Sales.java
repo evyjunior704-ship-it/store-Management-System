@@ -37,6 +37,9 @@ public class Sales {
     public Sales() {
 
     }
+    public Long getSaleNumber() {
+        return saleNumber;
+    }
 
     public Product getItemID() {
         return itemID;

@@ -62,10 +62,10 @@ public class Employee {
     )
     private String empRole;
 
+    @ManyToOne(optional = false)
     @JoinColumn(
             name = "store_associated_to",
             nullable = false)
-    @OneToOne
     private Store storeAssociatedTo;
 
 
