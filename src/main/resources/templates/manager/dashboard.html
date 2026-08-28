@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('dashboard')}"></header>
+
+<main>
+    <h1>Dashboard</h1>
+    <p class="sub">
+        <span th:text="${currentUser.storeName}">Store</span> ·
+        <span th:text="${today}">today</span>
+    </p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="tiles" style="margin-bottom:20px">
+        <div class="tile">
+            <div class="label">Revenue today</div>
+            <div class="value"
+                 th:text="'$' + ${#numbers.formatDecimal(totals.totalRevenue(), 1, 2)}">$0.00</div>
+        </div>
+        <div class="tile">
+            <div class="label">Transactions</div>
+            <div class="value" th:text="${totals.transactionCount()}">0</div>
+        </div>
+        <div class="tile">
+            <div class="label">Units sold</div>
+            <div class="value" th:text="${totals.totalUnits()}">0</div>
+        </div>
+        <div class="tile">
+            <div class="label">Low stock items</div>
+            <div class="value" th:text="${lowStock.size()}">0</div>
+        </div>
+    </div>
+
+    <div class="cols">
+        <section class="panel">
+            <h2>Needs attention</h2>
+            <p class="hint" style="margin-top:-8px;margin-bottom:12px">
+                At or below <span th:text="${lowStockThreshold}">20</span> units.
+            </p>
+            <table>
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="num">Stock</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${lowStock}"
+                    th:classappend="${item.quantity == 0} ? 'out' : 'low'">
+                    <td th:text="${item.inStoreProductName}">Product</td>
+                    <td class="num" th:text="${item.quantity}">0</td>
+                    <td><a class="btn btn-sm btn-ghost" th:href="@{/inventory}">Restock</a></td>
+                </tr>
+                <tr th:if="${lowStock.isEmpty()}">
+                    <td colspan="3" class="empty">Everything is well stocked.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="panel">
+            <h2>Today's shift reports</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>Employee</th>
+                    <th class="num">Sales</th>
+                    <th class="num">Revenue</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${shiftReports}">
+                    <td th:text="${r.employeeName()}">Employee</td>
+                    <td class="num" th:text="${r.totals().transactionCount()}">0</td>
+                    <td class="num"
+                        th:text="'$' + ${#numbers.formatDecimal(r.totals().totalRevenue(), 1, 2)}">$0.00</td>
+                    <td>
+                        <a class="btn btn-sm btn-ghost"
+                           th:href="@{/reports/employee.csv(employeeId=${r.employeeId()},date=${today})}">CSV</a>
+                    </td>
+                </tr>
+                <tr th:if="${shiftReports.isEmpty()}">
+                    <td colspan="4" class="empty">Nobody has recorded a sale today.</td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </div>
+</main>
+</body>
+</html>

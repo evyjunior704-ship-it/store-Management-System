@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Shared <head>. Pages pass their own title. -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'StoreMS · ' + ${title}">StoreMS</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<body>
+
+<!--
+  Top bar. Navigation links are hidden by role for tidiness only; the actual
+  authorisation is the URL rules in SecurityConfig plus store-scoping in every
+  handler. A hidden link is not a permission check.
+-->
+<header th:fragment="topbar(active)" class="topbar">
+    <div class="brand">
+        <span class="logo">StoreMS</span>
+        <span class="store" th:if="${currentUser}" th:text="${currentUser.storeName}">Store</span>
+    </div>
+
+    <nav class="nav" th:if="${currentUser}">
+        <a th:href="@{/pos}" th:classappend="${active == 'pos'} ? 'on'">Till</a>
+        <a th:href="@{/my-sales}" th:classappend="${active == 'my-sales'} ? 'on'">My sales</a>
+
+        <span th:if="${isManager}" class="divider"></span>
+        <a th:if="${isManager}" th:href="@{/dashboard}"
+           th:classappend="${active == 'dashboard'} ? 'on'">Dashboard</a>
+        <a th:if="${isManager}" th:href="@{/inventory}"
+           th:classappend="${active == 'inventory'} ? 'on'">Inventory</a>
+        <a th:if="${isManager}" th:href="@{/products}"
+           th:classappend="${active == 'products'} ? 'on'">Products</a>
+        <a th:if="${isManager}" th:href="@{/employees}"
+           th:classappend="${active == 'employees'} ? 'on'">Employees</a>
+        <a th:if="${isManager}" th:href="@{/sales}"
+           th:classappend="${active == 'sales'} ? 'on'">Sales</a>
+        <a th:if="${isManager}" th:href="@{/reports}"
+           th:classappend="${active == 'reports'} ? 'on'">Reports</a>
+    </nav>
+
+    <div class="user" th:if="${currentUser}">
+        <span class="who">
+            <span th:text="${currentUser.displayName}">User</span>
+            <span class="badge" th:text="${isManager} ? 'Manager' : 'Employee'">Role</span>
+        </span>
+        <!--
+          Log out routes through the shift report first, which is what makes the
+          report "generated at logout". The real logout POST lives on that page.
+        -->
+        <a class="btn btn-ghost" th:href="@{/my-sales/report(ending=true)}">End shift &amp; log out</a>
+    </div>
+</header>
+
+<!-- Flash messages set via RedirectAttributes. -->
+<div th:fragment="flash">
+    <div class="flash flash-ok" th:if="${success}" th:text="${success}"></div>
+    <div class="flash flash-err" th:if="${error}" th:text="${error}"></div>
+</div>
+
+</body>
+</html>

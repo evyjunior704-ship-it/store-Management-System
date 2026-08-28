@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('My sales')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('my-sales')}"></header>
+
+<main>
+    <h1>My sales</h1>
+    <p class="sub">Only sales you rang up yourself.</p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="panel">
+        <form th:action="@{/my-sales}" method="get" class="row">
+            <div>
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" th:value="${date}">
+            </div>
+            <div class="shrink">
+                <button class="btn" type="submit">Show</button>
+            </div>
+            <div class="shrink">
+                <a class="btn btn-ghost" th:href="@{/my-sales/report(date=${date})}">Shift report</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="tiles" style="margin-bottom:20px">
+        <div class="tile">
+            <div class="label">Transactions</div>
+            <div class="value" th:text="${totals.transactionCount()}">0</div>
+        </div>
+        <div class="tile">
+            <div class="label">Units sold</div>
+            <div class="value" th:text="${totals.totalUnits()}">0</div>
+        </div>
+        <div class="tile">
+            <div class="label">Revenue</div>
+            <div class="value"
+                 th:text="'$' + ${#numbers.formatDecimal(totals.totalRevenue(), 1, 2)}">$0.00</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Transactions</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Time</th>
+                <th>Product</th>
+                <th class="num">Qty</th>
+                <th class="num">Amount</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="s : ${sales}">
+                <td th:text="${#temporals.format(s.madeAt, 'HH:mm')}">00:00</td>
+                <td th:text="${s.product.productName}">Product</td>
+                <td class="num" th:text="${s.quantityBought}">0</td>
+                <td class="num" th:text="'$' + ${#numbers.formatDecimal(s.price, 1, 2)}">$0.00</td>
+            </tr>
+            <tr th:if="${sales.isEmpty()}">
+                <td colspan="4" class="empty">No sales recorded on this date.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+</body>
+</html>

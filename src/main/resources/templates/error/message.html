@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${title})}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('')}"></header>
+<main>
+    <div class="panel">
+        <h1 th:text="${title}">Something went wrong</h1>
+        <p class="sub" th:text="${message}">Details</p>
+        <a class="btn btn-ghost" th:href="@{/}">Back to start</a>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Shift report')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('my-sales')}"></header>
+
+<main>
+    <h1 th:text="${ending} ? 'End of shift' : 'Shift report'">Shift report</h1>
+    <p class="sub" th:if="${ending}">
+        Download your report if you need a copy, then sign out. Your manager can
+        pull these figures at any time, so nothing is lost either way.
+    </p>
+    <p class="sub" th:unless="${ending}">
+        <span th:text="${report.employeeName}">Employee</span> ·
+        <span th:text="${report.date}">date</span>
+    </p>
+
+    <div class="tiles" style="margin-bottom:20px">
+        <div class="tile">
+            <div class="label">Transactions</div>
+            <div class="value" th:text="${report.totals().transactionCount()}">0</div>
+        </div>
+        <div class="tile">
+            <div class="label">Units sold</div>
+            <div class="value" th:text="${report.totals().totalUnits()}">0</div>
+        </div>
+        <div class="tile">
+            <div class="label">Revenue</div>
+            <div class="value"
+                 th:text="'$' + ${#numbers.formatDecimal(report.totals().totalRevenue(), 1, 2)}">$0.00</div>
+        </div>
+        <div class="tile">
+            <div class="label">Average sale</div>
+            <div class="value"
+                 th:text="'$' + ${#numbers.formatDecimal(report.totals().averageTransactionValue(), 1, 2)}">$0.00</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>By product</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th class="num">Units</th>
+                <th class="num">Revenue</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="line : ${report.lines()}">
+                <td th:text="${line.productName()}">Product</td>
+                <td class="num" th:text="${line.units()}">0</td>
+                <td class="num" th:text="'$' + ${#numbers.formatDecimal(line.revenue(), 1, 2)}">$0.00</td>
+            </tr>
+            <tr th:if="${report.lines().isEmpty()}">
+                <td colspan="3" class="empty">No sales recorded for this shift.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel">
+        <div class="actions">
+            <a class="btn btn-ghost" th:href="@{/my-sales/report.csv(date=${report.date})}">
+                Download CSV
+            </a>
+            <a class="btn btn-ghost" th:href="@{/my-sales/report.pdf(date=${report.date})}">
+                Download PDF
+            </a>
+
+            <!-- The actual sign-out. POST so CSRF applies. -->
+            <form th:action="@{/logout}" method="post" class="inline" th:if="${ending}">
+                <button class="btn btn-lg" type="submit">Sign out</button>
+            </form>
+            <a class="btn btn-quiet" th:href="@{/my-sales}" th:unless="${ending}">Back</a>
+        </div>
+    </div>
+</main>
+</body>
+</html>

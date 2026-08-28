@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Till')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('pos')}"></header>
+
+<main>
+    <h1>Till</h1>
+    <p class="sub">Prices come from this store's inventory and cannot be typed in by hand.</p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="cols">
+
+        <!-- ---------- product search ---------- -->
+        <section class="panel">
+            <h2>Find a product</h2>
+
+            <form th:action="@{/pos}" method="get" class="row">
+                <div>
+                    <label for="q">Search this store's stock</label>
+                    <input type="text" id="q" name="q" th:value="${query}"
+                           placeholder="e.g. milk" autofocus>
+                </div>
+                <div class="shrink">
+                    <button class="btn" type="submit">Search</button>
+                </div>
+            </form>
+
+            <table th:if="${!results.isEmpty()}" style="margin-top:16px">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="num">Price</th>
+                    <th class="num">Stock</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${results}"
+                    th:classappend="${item.quantity == 0} ? 'out' : (${item.quantity <= 20} ? 'low' : '')">
+                    <td th:text="${item.inStoreProductName}">Product</td>
+                    <td class="num" th:text="'$' + ${#numbers.formatDecimal(item.unitPrice, 1, 2)}">$0.00</td>
+                    <td class="num">
+                        <span th:if="${item.quantity > 0}" th:text="${item.quantity}">0</span>
+                        <span th:if="${item.quantity == 0}" class="pill pill-warn">Out of stock</span>
+                    </td>
+                    <td>
+                        <form th:action="@{/pos/add}" method="post" class="row">
+                            <input type="hidden" name="productId" th:value="${item.product.productId}">
+                            <input type="hidden" name="q" th:value="${query}">
+                            <input class="qty shrink" type="number" name="quantity" value="1"
+                                   min="1" th:max="${item.quantity}"
+                                   th:disabled="${item.quantity == 0}">
+                            <button class="btn btn-sm shrink" type="submit"
+                                    th:disabled="${item.quantity == 0}">Add
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p class="empty" th:if="${query != null and results.isEmpty()}">
+                Nothing in this store's stock matches that search.
+            </p>
+            <p class="hint" th:if="${query == null}">
+                Search above to start a sale.
+            </p>
+        </section>
+
+        <!-- ---------- basket ---------- -->
+        <section class="panel">
+            <h2>Basket</h2>
+
+            <p class="empty" th:if="${basketLines.isEmpty()}">The basket is empty.</p>
+
+            <table th:if="${!basketLines.isEmpty()}">
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="num">Qty</th>
+                    <th class="num">Unit</th>
+                    <th class="num">Line</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="line : ${basketLines}" th:classappend="${line.exceedsStock()} ? 'out' : ''">
+                    <td>
+                        <span th:text="${line.name}">Product</span>
+                        <div class="hint" th:if="${line.exceedsStock()}">
+                            Only <span th:text="${line.available}">0</span> in stock
+                        </div>
+                    </td>
+                    <td class="num">
+                        <form th:action="@{/pos/update}" method="post" class="inline">
+                            <input type="hidden" name="productId" th:value="${line.productId}">
+                            <input class="qty" type="number" name="quantity"
+                                   th:value="${line.quantity}" min="0" onchange="this.form.submit()">
+                        </form>
+                    </td>
+                    <td class="num" th:text="'$' + ${#numbers.formatDecimal(line.unitPrice, 1, 2)}">$0.00</td>
+                    <td class="num" th:text="'$' + ${#numbers.formatDecimal(line.lineTotal(), 1, 2)}">$0.00</td>
+                    <td>
+                        <form th:action="@{/pos/remove}" method="post" class="inline">
+                            <input type="hidden" name="productId" th:value="${line.productId}">
+                            <button class="btn btn-sm btn-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr class="total-row">
+                    <td colspan="3">Total</td>
+                    <td class="num" th:text="'$' + ${#numbers.formatDecimal(basketTotal, 1, 2)}">$0.00</td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="actions" style="margin-top:16px" th:if="${!basketLines.isEmpty()}">
+                <form th:action="@{/pos/checkout}" method="post" class="inline">
+                    <button class="btn btn-lg" type="submit">Complete sale</button>
+                </form>
+                <form th:action="@{/pos/clear}" method="post" class="inline">
+                    <button class="btn btn-quiet" type="submit">Cancel</button>
+                </form>
+            </div>
+
+            <p class="hint" th:if="${!basketLines.isEmpty()}">
+                Stock is re-checked when you complete the sale. If any line is short,
+                nothing is recorded.
+            </p>
+        </section>
+    </div>
+</main>
+</body>
+</html>

@@ -49,13 +49,42 @@ export STOREMS_DB_PASSWORD="your-password"
 ./mvnw spring-boot:run
 ```
 
-To start with sample stores, employees, products and stock loaded:
+To start with a handful of sample stores, employees, products and stock loaded:
 
 ```bash
 ./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
-The `dev` seeder skips itself if any stores already exist.
+## Bulk dataset for forecasting work
+
+The `bulkseed` profile loads exactly 1000 rows into each of the nine tables:
+
+```bash
+./mvnw spring-boot:run -Dspring-boot.run.profiles=bulkseed
+```
+
+Both seeders refuse to run if any stores already exist. To reload, truncate first:
+
+```sql
+TRUNCATE sales, supplies, item_supplier, inventory_item, store_manager,
+         emergency_info, employee, product, store RESTART IDENTITY CASCADE;
+```
+
+The sales rows are not uniform noise — quantity is generated from a base demand
+per store/product, an annual cycle peaking in December, a 1.35x weekend uplift,
+and a price-elasticity term with roughly one sale in six under a 20% promotion.
+The generator uses a fixed seed, so the dataset is reproducible. Layout:
+
+| Table | Rows | Shape |
+| --- | --- | --- |
+| `store`, `product`, `employee`, `emergency_info`, `store_manager` | 1000 each | employee *i* staffs and manages store *i* |
+| `inventory_item`, `item_supplier` | 1000 each | grid of 40 stores x 25 products |
+| `supplies` | 1000 | deliveries sampled over 24 months |
+| `sales` | 1000 | 10 stores x 10 products = 100 series x 10 points, over 24 months |
+
+`Sales.madeAt` and `Supplies.suppliedAt` are assigned explicitly rather than by
+`@CreationTimestamp`, because the date a sale happened is business data — an
+audit-generated timestamp would make historical backfill impossible.
 
 ## Tests
 

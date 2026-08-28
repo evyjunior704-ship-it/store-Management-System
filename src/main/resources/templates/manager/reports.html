@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Reports')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('reports')}"></header>
+
+<main>
+    <h1>Daily sales reports</h1>
+    <p class="sub">
+        Computed from the sales table on request, so figures are available whether or
+        not an employee signed out properly.
+    </p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="panel">
+        <form th:action="@{/reports}" method="get" class="row">
+            <div>
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" th:value="${date}">
+            </div>
+            <div class="shrink"><button class="btn" type="submit">Show</button></div>
+        </form>
+    </div>
+
+    <section class="panel">
+        <h2>Whole store</h2>
+        <div class="tiles" style="margin-bottom:16px">
+            <div class="tile">
+                <div class="label">Transactions</div>
+                <div class="value" th:text="${storeReport.totals().transactionCount()}">0</div>
+            </div>
+            <div class="tile">
+                <div class="label">Units</div>
+                <div class="value" th:text="${storeReport.totals().totalUnits()}">0</div>
+            </div>
+            <div class="tile">
+                <div class="label">Revenue</div>
+                <div class="value"
+                     th:text="'$' + ${#numbers.formatDecimal(storeReport.totals().totalRevenue(), 1, 2)}">$0.00</div>
+            </div>
+        </div>
+        <div class="actions">
+            <a class="btn btn-ghost" th:href="@{/reports/store.csv(date=${date})}">Download CSV</a>
+            <a class="btn btn-ghost" th:href="@{/reports/store.pdf(date=${date})}">Download PDF</a>
+        </div>
+    </section>
+
+    <section class="panel">
+        <h2>Per employee</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Employee</th>
+                <th class="num">Transactions</th>
+                <th class="num">Units</th>
+                <th class="num">Revenue</th>
+                <th>Download</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${employeeReports}">
+                <td th:text="${r.employeeName()}">Employee</td>
+                <td class="num" th:text="${r.totals().transactionCount()}">0</td>
+                <td class="num" th:text="${r.totals().totalUnits()}">0</td>
+                <td class="num"
+                    th:text="'$' + ${#numbers.formatDecimal(r.totals().totalRevenue(), 1, 2)}">$0.00</td>
+                <td>
+                    <div class="actions">
+                        <a class="btn btn-sm btn-ghost"
+                           th:href="@{/reports/employee.csv(employeeId=${r.employeeId()},date=${date})}">CSV</a>
+                        <a class="btn btn-sm btn-ghost"
+                           th:href="@{/reports/employee.pdf(employeeId=${r.employeeId()},date=${date})}">PDF</a>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${employeeReports.isEmpty()}">
+                <td colspan="5" class="empty">Nobody recorded a sale on this date.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="panel">
+        <h2>Store breakdown by product</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th class="num">Units</th>
+                <th class="num">Revenue</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="line : ${storeReport.lines()}">
+                <td th:text="${line.productName()}">Product</td>
+                <td class="num" th:text="${line.units()}">0</td>
+                <td class="num" th:text="'$' + ${#numbers.formatDecimal(line.revenue(), 1, 2)}">$0.00</td>
+            </tr>
+            <tr th:if="${storeReport.lines().isEmpty()}">
+                <td colspan="3" class="empty">No sales on this date.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>

@@ -3,15 +3,20 @@ package com.salias.storems.service;
 import com.salias.storems.model.inventoryitem.InventoryItem;
 import com.salias.storems.model.sales.Sales;
 import com.salias.storems.model.sales.SalesRepository;
+import com.salias.storems.report.SalesTotals;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Recording sales and reading them back.
+ * Reading sales back, plus the single-line "sell N units" operation.
+ *
+ * <p>Multi-line till checkouts go through {@link PosService}, which records the
+ * operator; this class covers programmatic single-product sales.
  */
 @Service
 @Transactional(readOnly = true)
@@ -25,18 +30,36 @@ public class SalesService {
         this.inventoryService = inventoryService;
     }
 
-    public List<Sales> findByStore(Long storeId) {
-        return salesRepository.findByStore_StoreId(storeId);
+    /** Every sale at a store on one day, newest first. */
+    public List<Sales> findStoreSalesOn(Long storeId, LocalDate date) {
+        return salesRepository.findStoreSales(storeId, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
     }
 
-    public List<Sales> findByStoreBetween(Long storeId, LocalDateTime from, LocalDateTime to) {
-        return salesRepository.findByStore_StoreIdAndMadeAtBetween(storeId, from, to);
+    /** One employee's sales at a store on one day. */
+    public List<Sales> findEmployeeSalesOn(Long storeId, Long employeeId, LocalDate date) {
+        return salesRepository.findEmployeeSales(
+                storeId, employeeId, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+    }
+
+    public List<Sales> findStoreSalesBetween(Long storeId, LocalDateTime from, LocalDateTime to) {
+        return salesRepository.findStoreSales(storeId, from, to);
+    }
+
+    public SalesTotals totalsForStoreOn(Long storeId, LocalDate date) {
+        SalesTotals totals = salesRepository.totalsForStore(
+                storeId, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+        return totals == null ? SalesTotals.empty() : totals;
+    }
+
+    public SalesTotals totalsForEmployeeOn(Long storeId, Long employeeId, LocalDate date) {
+        SalesTotals totals = salesRepository.totalsForEmployee(
+                storeId, employeeId, date.atStartOfDay(), date.plusDays(1).atStartOfDay());
+        return totals == null ? SalesTotals.empty() : totals;
     }
 
     /**
-     * Sells {@code quantity} units of a product at a store: deducts the stock and
-     * writes a sale priced at the item's current unit price. Both happen in one
-     * transaction, so a stock shortfall records no sale.
+     * Sells {@code quantity} units of one product: deducts stock and writes a sale
+     * priced at the item's current unit price, in one transaction.
      *
      * @throws InsufficientStockException if the store does not hold enough units
      */
