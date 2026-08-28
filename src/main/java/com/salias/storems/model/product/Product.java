@@ -42,6 +42,14 @@ public class Product {
     @Column(name = "product_description", nullable = false, length = 2000)
     private String productDescription;
 
+    /**
+     * False once discontinued. Products with sales history cannot be deleted
+     * without destroying that history, so "removing" a product hides it from the
+     * catalogue and the till instead of deleting the row.
+     */
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
+
     protected Product() {
         // required by JPA
     }
@@ -74,6 +82,22 @@ public class Product {
 
     public void setProductDescription(String productDescription) {
         this.productDescription = productDescription;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void discontinue() {
+        this.active = false;
+    }
+
+    public void reinstate() {
+        this.active = true;
     }
 
     @Override

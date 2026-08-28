@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Sign in')}"></head>
+<body>
+<div class="login-wrap">
+    <div class="login-card">
+        <h1>StoreMS</h1>
+        <p class="sub">Sign in with your employee account.</p>
+
+        <div class="flash flash-err" th:if="${param.error}">
+            Incorrect username or password.
+        </div>
+        <div class="flash flash-ok" th:if="${param.loggedOut}">
+            You have been signed out.
+        </div>
+
+        <!-- th:action makes Thymeleaf inject the CSRF token automatically. -->
+        <form th:action="@{/login}" method="post">
+            <div class="field">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" autocomplete="username"
+                       required autofocus>
+            </div>
+            <div class="field">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password"
+                       autocomplete="current-password" required>
+            </div>
+            <button class="btn btn-lg" type="submit" style="width:100%">Sign in</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

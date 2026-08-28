@@ -64,6 +64,20 @@ public class Employee {
     @JoinColumn(name = "store_associated_to", nullable = false)
     private Store storeAssociatedTo;
 
+    /**
+     * Login name, or null for staff with no system access. Unique where present,
+     * so most employees can exist without credentials.
+     */
+    @Column(name = "username", unique = true, length = 60)
+    private String username;
+
+    /** BCrypt hash. Never holds a plaintext password. */
+    @Column(name = "password_hash", length = 100)
+    private String passwordHash;
+
+    @Column(name = "enabled", nullable = false)
+    private boolean enabled = true;
+
     protected Employee() {
         // required by JPA
     }
@@ -132,6 +146,38 @@ public class Employee {
 
     public void setStoreAssociatedTo(Store storeAssociatedTo) {
         this.storeAssociatedTo = storeAssociatedTo;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    /**
+     * Grants or updates system access.
+     *
+     * @param passwordHash an already-encoded hash; callers must never pass plaintext
+     */
+    public void setCredentials(String username, String passwordHash) {
+        this.username = username;
+        this.passwordHash = passwordHash;
+    }
+
+    /** Revokes system access without deleting the employee record. */
+    public void revokeCredentials() {
+        this.username = null;
+        this.passwordHash = null;
     }
 
     @Override

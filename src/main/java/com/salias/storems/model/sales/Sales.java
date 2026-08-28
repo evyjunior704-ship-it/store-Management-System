@@ -1,5 +1,6 @@
 package com.salias.storems.model.sales;
 
+import com.salias.storems.model.employee.Employee;
 import com.salias.storems.model.product.Product;
 import com.salias.storems.model.store.Store;
 import jakarta.persistence.Column;
@@ -15,7 +16,6 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -49,6 +49,15 @@ public class Sales {
     @JoinColumn(name = "store_id", nullable = false)
     private Store store;
 
+    /**
+     * The employee who rang the sale through. Nullable because bulk-loaded
+     * historical sales have no operator, but every sale made through the till
+     * records one.
+     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sold_by_employee_id")
+    private Employee soldBy;
+
     @NotNull
     @Positive
     @Column(name = "quantity_bought", nullable = false, updatable = false)
@@ -60,8 +69,12 @@ public class Sales {
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
-    /** Set by Hibernate on insert; never updated afterwards. */
-    @CreationTimestamp
+    /**
+     * When the sale happened. This is business data, not an audit column: it is
+     * assigned explicitly so historical sales can be loaded (and so sales-history
+     * models can train on real dates). Always set via the constructor.
+     */
+    @NotNull
     @Column(name = "made_at", nullable = false, updatable = false)
     private LocalDateTime madeAt;
 
@@ -69,11 +82,42 @@ public class Sales {
         // required by JPA
     }
 
+    /** Records a sale happening now, with no operator recorded. */
     public Sales(Product product, Store store, Integer quantityBought, BigDecimal price) {
+        this(product, store, quantityBought, price, LocalDateTime.now());
+    }
+
+    /** Records a till sale rung through by a named employee, happening now. */
+    public Sales(Product product,
+                 Store store,
+                 Employee soldBy,
+                 Integer quantityBought,
+                 BigDecimal price) {
+        this(product, store, soldBy, quantityBought, price, LocalDateTime.now());
+    }
+
+    /** Records a sale by a named employee at an explicit time, for backfilling. */
+    public Sales(Product product,
+                 Store store,
+                 Employee soldBy,
+                 Integer quantityBought,
+                 BigDecimal price,
+                 LocalDateTime madeAt) {
+        this(product, store, quantityBought, price, madeAt);
+        this.soldBy = soldBy;
+    }
+
+    /** Records a sale at an explicit time, for backfilling history. */
+    public Sales(Product product,
+                 Store store,
+                 Integer quantityBought,
+                 BigDecimal price,
+                 LocalDateTime madeAt) {
         this.product = product;
         this.store = store;
         this.quantityBought = quantityBought;
         this.price = price;
+        this.madeAt = madeAt;
     }
 
     public Long getSaleNumber() {
@@ -86,6 +130,10 @@ public class Sales {
 
     public Store getStore() {
         return store;
+    }
+
+    public Employee getSoldBy() {
+        return soldBy;
     }
 
     public Integer getQuantityBought() {

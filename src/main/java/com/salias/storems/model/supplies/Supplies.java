@@ -16,7 +16,6 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -53,8 +52,11 @@ public class Supplies {
     })
     private ItemSupplier supplier;
 
-    /** Set by Hibernate on insert; never updated afterwards. */
-    @CreationTimestamp
+    /**
+     * When the delivery arrived. Business data, not an audit column: assigned
+     * explicitly so historical deliveries can be loaded.
+     */
+    @NotNull
     @Column(name = "supplied_at", nullable = false, updatable = false)
     private LocalDateTime suppliedAt;
 
@@ -71,10 +73,20 @@ public class Supplies {
         // required by JPA
     }
 
+    /** Records a delivery arriving now. */
     public Supplies(ItemSupplier supplier, Integer quantitySupplied, String deliveryNote) {
+        this(supplier, quantitySupplied, deliveryNote, LocalDateTime.now());
+    }
+
+    /** Records a delivery at an explicit time, for backfilling history. */
+    public Supplies(ItemSupplier supplier,
+                    Integer quantitySupplied,
+                    String deliveryNote,
+                    LocalDateTime suppliedAt) {
         this.supplier = supplier;
         this.quantitySupplied = quantitySupplied;
         this.deliveryNote = deliveryNote;
+        this.suppliedAt = suppliedAt;
     }
 
     public Long getSupplyNumber() {

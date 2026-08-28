@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Employee')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('employees')}"></header>
+
+<main>
+    <h1 th:text="${employee.empFirstName} + ' ' + ${employee.empLastName}">Employee</h1>
+    <p class="sub">
+        <span th:text="${employee.empRole}">Role</span> ·
+        employee #<span th:text="${employee.id}">0</span>
+    </p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section class="panel">
+        <h2>Details</h2>
+        <form th:action="@{'/employees/' + ${employee.id} + '/update'}" method="post">
+            <div class="row">
+                <div>
+                    <label for="firstName">First name</label>
+                    <input type="text" id="firstName" name="firstName"
+                           th:value="${employee.empFirstName}" required>
+                </div>
+                <div>
+                    <label for="lastName">Last name</label>
+                    <input type="text" id="lastName" name="lastName"
+                           th:value="${employee.empLastName}" required>
+                </div>
+                <div>
+                    <label for="dob">Date of birth</label>
+                    <input type="date" id="dob" name="dob" th:value="${employee.empDob}" required>
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address"
+                           th:value="${employee.empAddress}" required>
+                </div>
+                <div>
+                    <label for="role">Role</label>
+                    <input type="text" id="role" name="role" th:value="${employee.empRole}" required>
+                </div>
+                <div class="shrink"><button class="btn" type="submit">Save</button></div>
+            </div>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>System access</h2>
+        <form th:action="@{'/employees/' + ${employee.id} + '/access'}" method="post" class="row">
+            <div>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username"
+                       th:value="${employee.username}" autocomplete="off" required>
+            </div>
+            <div>
+                <label for="password">New password</label>
+                <input type="password" id="password" name="password"
+                       autocomplete="new-password" placeholder="leave blank to keep current">
+            </div>
+            <div class="shrink"><button class="btn" type="submit">Update access</button></div>
+        </form>
+
+        <form th:action="@{'/employees/' + ${employee.id} + '/revoke-access'}"
+              method="post" style="margin-top:12px" th:if="${employee.username}">
+            <button class="btn btn-sm btn-danger" type="submit">Revoke access</button>
+            <span class="hint">Removes the login. The employee record is kept.</span>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>Emergency contacts</h2>
+
+        <table>
+            <thead>
+            <tr>
+                <th>Contact</th>
+                <th>Phone</th>
+                <th>Relationship</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${contacts}">
+                <form th:action="@{'/employees/' + ${employee.id} + '/emergency/' + ${c.id} + '/update'}"
+                      method="post">
+                    <td><input type="text" name="contactName" th:value="${c.contactName}" required></td>
+                    <td><input type="text" name="phoneNumber" th:value="${c.phoneNumber}" required></td>
+                    <td><input type="text" name="relationship" th:value="${c.relationship}" required></td>
+                    <td>
+                        <button class="btn btn-sm" type="submit">Save</button>
+                    </td>
+                </form>
+            </tr>
+            <tr th:if="${contacts.isEmpty()}">
+                <td colspan="4" class="empty">No emergency contacts on file.</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <div th:each="c : ${contacts}" style="display:inline-block;margin-right:6px;margin-top:10px">
+            <form th:action="@{'/employees/' + ${employee.id} + '/emergency/' + ${c.id} + '/delete'}"
+                  method="post" class="inline">
+                <button class="btn btn-sm btn-danger" type="submit"
+                        th:text="'Remove ' + ${c.contactName}">Remove
+                </button>
+            </form>
+        </div>
+
+        <h2 style="margin-top:24px">Add a contact</h2>
+        <form th:action="@{'/employees/' + ${employee.id} + '/emergency'}" method="post" class="row">
+            <div>
+                <label for="contactName">Name</label>
+                <input type="text" id="contactName" name="contactName" required>
+            </div>
+            <div>
+                <label for="phoneNumber">Phone</label>
+                <input type="text" id="phoneNumber" name="phoneNumber" required>
+            </div>
+            <div>
+                <label for="relationship">Relationship</label>
+                <input type="text" id="relationship" name="relationship" placeholder="Spouse" required>
+            </div>
+            <div class="shrink"><button class="btn" type="submit">Add</button></div>
+        </form>
+    </section>
+
+    <a class="btn btn-quiet" th:href="@{/employees}">Back to staff list</a>
+</main>
+</body>
+</html>

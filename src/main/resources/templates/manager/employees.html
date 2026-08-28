@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Employees')}"></head>
+<body>
+<header th:replace="~{fragments/layout :: topbar('employees')}"></header>
+
+<main>
+    <h1>Employees</h1>
+    <p class="sub">Staff at <span th:text="${currentUser.storeName}">this store</span>.</p>
+
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section class="panel">
+        <h2>Add an employee</h2>
+        <form th:action="@{/employees}" method="post">
+            <div class="row">
+                <div>
+                    <label for="firstName">First name</label>
+                    <input type="text" id="firstName" name="firstName" required>
+                </div>
+                <div>
+                    <label for="lastName">Last name</label>
+                    <input type="text" id="lastName" name="lastName" required>
+                </div>
+                <div>
+                    <label for="dob">Date of birth</label>
+                    <input type="date" id="dob" name="dob" required>
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label for="address">Address</label>
+                    <input type="text" id="address" name="address" required>
+                </div>
+                <div>
+                    <label for="role">Role</label>
+                    <input type="text" id="role" name="role" placeholder="Cashier" required>
+                </div>
+            </div>
+            <div class="row">
+                <div>
+                    <label for="username">Username <span class="hint">(optional)</span></label>
+                    <input type="text" id="username" name="username" autocomplete="off">
+                </div>
+                <div>
+                    <label for="password">Password <span class="hint">(required if username set)</span></label>
+                    <input type="password" id="password" name="password" autocomplete="new-password">
+                </div>
+                <div class="shrink"><button class="btn" type="submit">Add employee</button></div>
+            </div>
+            <p class="hint">
+                Leave username blank for staff who do not need to sign in. A new employee
+                becomes an ordinary Employee; managers are assigned through the
+                store_manager record.
+            </p>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>Staff list</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Login</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="e : ${staff}">
+                <td th:text="${e.empFirstName} + ' ' + ${e.empLastName}">Name</td>
+                <td th:text="${e.empRole}">Role</td>
+                <td>
+                    <span th:if="${e.username}" th:text="${e.username}">user</span>
+                    <span class="pill pill-off" th:unless="${e.username}">No access</span>
+                </td>
+                <td>
+                    <a class="btn btn-sm btn-ghost" th:href="@{'/employees/' + ${e.id}}">Open</a>
+                </td>
+            </tr>
+            <tr th:if="${staff.isEmpty()}">
+                <td colspan="4" class="empty">No staff recorded at this store.</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+</main>
+</body>
+</html>
