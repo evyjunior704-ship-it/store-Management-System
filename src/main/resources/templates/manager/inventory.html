@@ -5,123 +5,142 @@
 <header th:replace="~{fragments/layout :: topbar('inventory')}"></header>
 
 <main>
-    <h1>Inventory</h1>
-    <p class="sub">Stock and pricing for <span th:text="${currentUser.storeName}">this store</span>.</p>
+    <div class="page-head">
+        <div>
+            <h1>Inventory</h1>
+            <p class="sub">Stock and pricing for <span th:text="${currentUser.storeName}">this store</span>.</p>
+        </div>
+    </div>
 
     <div th:replace="~{fragments/layout :: flash}"></div>
 
     <section class="panel">
         <h2>Current stock</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>Product</th>
-                <th class="num">Price</th>
-                <th class="num">Stock</th>
-                <th>Set stock</th>
-                <th>Quick adjust</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="item : ${stock}"
-                th:classappend="${item.quantity == 0} ? 'out' : (${item.quantity <= lowStockThreshold} ? 'low' : '')">
-                <td>
-                    <span th:text="${item.inStoreProductName}">Product</span>
-                    <span class="pill pill-off" th:unless="${item.product.active}">Discontinued</span>
-                </td>
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="num">Price</th>
+                    <th class="num">Stock</th>
+                    <th>Set stock</th>
+                    <th>Quick adjust</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${stock}"
+                    th:classappend="${item.quantity == 0} ? 'out' : (${item.quantity <= lowStockThreshold} ? 'low' : '')">
+                    <td>
+                        <span th:text="${item.inStoreProductName}">Product</span>
+                        <span class="pill pill-off" th:unless="${item.product.active}">Discontinued</span>
+                    </td>
 
-                <td class="num">
-                    <form th:action="@{/inventory/set-price}" method="post" class="inline">
-                        <input type="hidden" name="productId" th:value="${item.product.productId}">
-                        <input class="price" type="number" name="unitPrice" step="0.01" min="0"
-                               th:value="${item.unitPrice}" onchange="this.form.submit()">
-                    </form>
-                </td>
-
-                <td class="num" th:text="${item.quantity}">0</td>
-
-                <td>
-                    <form th:action="@{/inventory/set-quantity}" method="post" class="row">
-                        <input type="hidden" name="productId" th:value="${item.product.productId}">
-                        <input class="qty shrink" type="number" name="quantity" min="0"
-                               th:value="${item.quantity}">
-                        <button class="btn btn-sm shrink" type="submit">Set</button>
-                    </form>
-                </td>
-
-                <td>
-                    <div class="actions">
-                        <form th:action="@{/inventory/adjust}" method="post" class="inline">
+                    <td class="num">
+                        <form th:action="@{/inventory/set-price}" method="post" class="inline">
                             <input type="hidden" name="productId" th:value="${item.product.productId}">
-                            <input type="hidden" name="delta" value="10">
-                            <button class="btn btn-sm btn-quiet" type="submit">+10</button>
+                            <input class="price" type="number" name="unitPrice" step="0.01" min="0"
+                                   th:value="${item.unitPrice}" onchange="this.form.submit()">
                         </form>
-                        <form th:action="@{/inventory/adjust}" method="post" class="inline">
-                            <input type="hidden" name="productId" th:value="${item.product.productId}">
-                            <input type="hidden" name="delta" value="-10">
-                            <button class="btn btn-sm btn-quiet" type="submit">−10</button>
-                        </form>
-                    </div>
-                </td>
+                    </td>
 
-                <td>
-                    <form th:action="@{/inventory/remove-item}" method="post" class="inline">
-                        <input type="hidden" name="productId" th:value="${item.product.productId}">
-                        <button class="btn btn-sm btn-danger" type="submit">Remove</button>
-                    </form>
-                </td>
-            </tr>
-            <tr th:if="${stock.isEmpty()}">
-                <td colspan="6" class="empty">This store has no stock yet. Add an item below.</td>
-            </tr>
-            </tbody>
-        </table>
+                    <td class="num" th:text="${item.quantity}">0</td>
+
+                    <td>
+                        <form th:action="@{/inventory/set-quantity}" method="post" class="row">
+                            <input type="hidden" name="productId" th:value="${item.product.productId}">
+                            <input class="qty shrink" type="number" name="quantity" min="0"
+                                   th:value="${item.quantity}">
+                            <button class="btn btn-sm shrink" type="submit">Set</button>
+                        </form>
+                    </td>
+
+                    <td>
+                        <div class="actions">
+                            <form th:action="@{/inventory/adjust}" method="post" class="inline">
+                                <input type="hidden" name="productId" th:value="${item.product.productId}">
+                                <input type="hidden" name="delta" value="10">
+                                <button class="btn btn-sm btn-quiet" type="submit">+10</button>
+                            </form>
+                            <form th:action="@{/inventory/adjust}" method="post" class="inline">
+                                <input type="hidden" name="productId" th:value="${item.product.productId}">
+                                <input type="hidden" name="delta" value="-10">
+                                <button class="btn btn-sm btn-quiet" type="submit">−10</button>
+                            </form>
+                        </div>
+                    </td>
+
+                    <td>
+                        <form th:action="@{/inventory/remove-item}" method="post" class="inline">
+                            <input type="hidden" name="productId" th:value="${item.product.productId}">
+                            <button class="btn btn-sm btn-danger" type="submit">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${stock.isEmpty()}">
+                    <td colspan="6" class="empty">This store has no stock yet. Add an item below.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
         <p class="hint">
-            Removing an item takes it off this store's shelves only. Sales history is untouched.
+            Removing an item takes it off this store&rsquo;s shelves only. Sales history is untouched.
         </p>
     </section>
 
     <section class="panel">
         <h2>Add an item to this store</h2>
 
-        <form th:action="@{/inventory}" method="get" class="row" style="margin-bottom:14px">
+        <form th:action="@{/inventory}" method="get" class="row" style="margin-bottom:16px">
             <div>
                 <label for="addProduct">Search the catalogue</label>
                 <input type="text" id="addProduct" name="addProduct" th:value="${addProduct}"
                        placeholder="e.g. milk">
             </div>
-            <div class="shrink"><button class="btn btn-quiet" type="submit">Search</button></div>
+            <div class="shrink">
+                <button class="btn btn-quiet" type="submit">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="7"/>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                        </svg>
+                    </span>
+                    Search
+                </button>
+            </div>
         </form>
 
-        <table>
-            <thead>
-            <tr>
-                <th>Catalogue product</th>
-                <th>Name in this store</th>
-                <th>Price</th>
-                <th>Opening stock</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="p : ${catalogue}">
-                <form th:action="@{/inventory/add-item}" method="post">
-                    <td>
-                        <span th:text="${p.productName}">Product</span>
-                        <input type="hidden" name="productId" th:value="${p.productId}">
-                    </td>
-                    <td><input type="text" name="inStoreName" th:placeholder="${p.productName}"></td>
-                    <td><input class="price" type="number" name="unitPrice" step="0.01" min="0" required></td>
-                    <td><input class="qty" type="number" name="quantity" value="0" min="0"></td>
-                    <td><button class="btn btn-sm" type="submit">Add</button></td>
-                </form>
-            </tr>
-            <tr th:if="${catalogue.isEmpty()}">
-                <td colspan="5" class="empty">No matching catalogue products.</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Catalogue product</th>
+                    <th>Name in this store</th>
+                    <th>Price</th>
+                    <th>Opening stock</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${catalogue}">
+                    <form th:action="@{/inventory/add-item}" method="post">
+                        <td>
+                            <span th:text="${p.productName}">Product</span>
+                            <input type="hidden" name="productId" th:value="${p.productId}">
+                        </td>
+                        <td><input type="text" name="inStoreName" th:placeholder="${p.productName}"></td>
+                        <td><input class="price" type="number" name="unitPrice" step="0.01" min="0" required></td>
+                        <td><input class="qty" type="number" name="quantity" value="0" min="0"></td>
+                        <td><button class="btn btn-sm" type="submit">Add</button></td>
+                    </form>
+                </tr>
+                <tr th:if="${catalogue.isEmpty()}">
+                    <td colspan="5" class="empty">No matching catalogue products.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </section>
 </main>
 </body>

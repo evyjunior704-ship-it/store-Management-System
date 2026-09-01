@@ -5,8 +5,12 @@
 <header th:replace="~{fragments/layout :: topbar('sales')}"></header>
 
 <main>
-    <h1>Sales</h1>
-    <p class="sub">All sales at <span th:text="${currentUser.storeName}">this store</span>.</p>
+    <div class="page-head">
+        <div>
+            <h1>Sales</h1>
+            <p class="sub">All sales at <span th:text="${currentUser.storeName}">this store</span>.</p>
+        </div>
+    </div>
 
     <div th:replace="~{fragments/layout :: flash}"></div>
 
@@ -27,16 +31,20 @@
                     </option>
                 </select>
             </div>
-            <div class="shrink"><button class="btn" type="submit">Filter</button></div>
+            <div class="shrink">
+                <button class="btn" type="submit">
+                    Filter
+                </button>
+            </div>
         </form>
     </div>
 
-    <div class="tiles" style="margin-bottom:20px">
+    <div class="tiles" style="margin-bottom:22px">
         <div class="tile">
             <div class="label">Transactions</div>
             <div class="value" th:text="${totals.transactionCount()}">0</div>
         </div>
-        <div class="tile">
+        <div class="tile tile--amber">
             <div class="label">Units</div>
             <div class="value" th:text="${totals.totalUnits()}">0</div>
         </div>
@@ -48,33 +56,35 @@
     </div>
 
     <div class="panel">
-        <table>
-            <thead>
-            <tr>
-                <th>Time</th>
-                <th>Product</th>
-                <th>Sold by</th>
-                <th class="num">Qty</th>
-                <th class="num">Amount</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="s : ${sales}">
-                <td th:text="${#temporals.format(s.madeAt, 'HH:mm')}">00:00</td>
-                <td th:text="${s.product.productName}">Product</td>
-                <td>
-                    <span th:if="${s.soldBy}"
-                          th:text="${s.soldBy.empFirstName} + ' ' + ${s.soldBy.empLastName}">Name</span>
-                    <span class="pill pill-off" th:unless="${s.soldBy}">Imported</span>
-                </td>
-                <td class="num" th:text="${s.quantityBought}">0</td>
-                <td class="num" th:text="'$' + ${#numbers.formatDecimal(s.price, 1, 2)}">$0.00</td>
-            </tr>
-            <tr th:if="${sales.isEmpty()}">
-                <td colspan="5" class="empty">No sales on this date.</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Product</th>
+                    <th>Sold by</th>
+                    <th class="num">Qty</th>
+                    <th class="num">Amount</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${sales}">
+                    <td th:text="${#temporals.format(s.madeAt, 'HH:mm')}">00:00</td>
+                    <td th:text="${s.product.productName}">Product</td>
+                    <td>
+                        <span th:if="${s.soldBy}"
+                              th:text="${s.soldBy.empFirstName} + ' ' + ${s.soldBy.empLastName}">Name</span>
+                        <span class="pill pill-off" th:unless="${s.soldBy}">Imported</span>
+                    </td>
+                    <td class="num" th:text="${s.quantityBought}">0</td>
+                    <td class="num" th:text="'$' + ${#numbers.formatDecimal(s.price, 1, 2)}">$0.00</td>
+                </tr>
+                <tr th:if="${sales.isEmpty()}">
+                    <td colspan="5" class="empty">No sales recorded for this filter.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </main>
 </body>

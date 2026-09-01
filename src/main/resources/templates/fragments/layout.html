@@ -6,6 +6,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="'StoreMS · ' + ${title}">StoreMS</title>
+    <!-- Typography: Space Grotesk (display), Inter (body), IBM Plex Mono (numerals).
+         Falls back to tuned system stacks if the CDN is unreachable. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
     <link rel="stylesheet" th:href="@{/css/app.css}">
 </head>
 
@@ -17,40 +23,57 @@
   handler. A hidden link is not a permission check.
 -->
 <header th:fragment="topbar(active)" class="topbar">
-    <div class="brand">
+    <a class="brand" th:href="@{/}">
+        <span class="brandmark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+            </svg>
+        </span>
         <span class="logo">StoreMS</span>
         <span class="store" th:if="${currentUser}" th:text="${currentUser.storeName}">Store</span>
-    </div>
+    </a>
 
-    <nav class="nav" th:if="${currentUser}">
-        <a th:href="@{/pos}" th:classappend="${active == 'pos'} ? 'on'">Till</a>
-        <a th:href="@{/my-sales}" th:classappend="${active == 'my-sales'} ? 'on'">My sales</a>
+    <nav class="navchip" th:if="${currentUser}">
+        <div class="nav">
+            <a th:href="@{/pos}" th:classappend="${active == 'pos'} ? 'on'">Till</a>
+            <a th:href="@{/my-sales}" th:classappend="${active == 'my-sales'} ? 'on'">My sales</a>
 
-        <span th:if="${isManager}" class="divider"></span>
-        <a th:if="${isManager}" th:href="@{/dashboard}"
-           th:classappend="${active == 'dashboard'} ? 'on'">Dashboard</a>
-        <a th:if="${isManager}" th:href="@{/inventory}"
-           th:classappend="${active == 'inventory'} ? 'on'">Inventory</a>
-        <a th:if="${isManager}" th:href="@{/products}"
-           th:classappend="${active == 'products'} ? 'on'">Products</a>
-        <a th:if="${isManager}" th:href="@{/employees}"
-           th:classappend="${active == 'employees'} ? 'on'">Employees</a>
-        <a th:if="${isManager}" th:href="@{/sales}"
-           th:classappend="${active == 'sales'} ? 'on'">Sales</a>
-        <a th:if="${isManager}" th:href="@{/reports}"
-           th:classappend="${active == 'reports'} ? 'on'">Reports</a>
+            <span th:if="${isManager}" class="divider"></span>
+            <a th:if="${isManager}" th:href="@{/dashboard}"
+               th:classappend="${active == 'dashboard'} ? 'on'">Dashboard</a>
+            <a th:if="${isManager}" th:href="@{/inventory}"
+               th:classappend="${active == 'inventory'} ? 'on'">Inventory</a>
+            <a th:if="${isManager}" th:href="@{/products}"
+               th:classappend="${active == 'products'} ? 'on'">Products</a>
+            <a th:if="${isManager}" th:href="@{/employees}"
+               th:classappend="${active == 'employees'} ? 'on'">Employees</a>
+            <a th:if="${isManager}" th:href="@{/sales}"
+               th:classappend="${active == 'sales'} ? 'on'">Sales</a>
+            <a th:if="${isManager}" th:href="@{/reports}"
+               th:classappend="${active == 'reports'} ? 'on'">Reports</a>
+        </div>
     </nav>
 
     <div class="user" th:if="${currentUser}">
         <span class="who">
-            <span th:text="${currentUser.displayName}">User</span>
-            <span class="badge" th:text="${isManager} ? 'Manager' : 'Employee'">Role</span>
+            <span class="initials" aria-hidden="true"
+                  th:with="i=${#strings.indexOf(currentUser.displayName,' ')}"
+                  th:text="${i >= 0
+                      ? #strings.substring(currentUser.displayName,0,1)
+                        + #strings.substring(currentUser.displayName,i+1,i+2)
+                      : #strings.substring(currentUser.displayName,0,1)}">AL</span>
+            <span class="name" th:text="${currentUser.displayName}">User</span>
+            <span class="badge"
+                  th:classappend="${isManager} ? 'badge--manager'"
+                  th:text="${isManager} ? 'Manager' : 'Employee'">Role</span>
         </span>
         <!--
           Log out routes through the shift report first, which is what makes the
           report "generated at logout". The real logout POST lives on that page.
         -->
-        <a class="btn btn-ghost" th:href="@{/my-sales/report(ending=true)}">End shift &amp; log out</a>
+        <a class="btn btn-quiet btn-sm" th:href="@{/my-sales/report(ending=true)}">End shift &amp; log out</a>
     </div>
 </header>
 

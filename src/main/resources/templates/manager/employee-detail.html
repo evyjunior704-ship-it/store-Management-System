@@ -5,11 +5,18 @@
 <header th:replace="~{fragments/layout :: topbar('employees')}"></header>
 
 <main>
-    <h1 th:text="${employee.empFirstName} + ' ' + ${employee.empLastName}">Employee</h1>
-    <p class="sub">
-        <span th:text="${employee.empRole}">Role</span> ·
-        employee #<span th:text="${employee.id}">0</span>
-    </p>
+    <div class="page-head">
+        <div>
+            <h1 th:text="${employee.empFirstName} + ' ' + ${employee.empLastName}">Employee</h1>
+            <p class="sub">
+                <span th:text="${employee.empRole}">Role</span> ·
+                employee #<span th:text="${employee.id}">0</span>
+            </p>
+        </div>
+        <div class="actions">
+            <a class="btn btn-quiet" th:href="@{/employees}">Back to staff list</a>
+        </div>
+    </div>
 
     <div th:replace="~{fragments/layout :: flash}"></div>
 
@@ -42,7 +49,17 @@
                     <label for="role">Role</label>
                     <input type="text" id="role" name="role" th:value="${employee.empRole}" required>
                 </div>
-                <div class="shrink"><button class="btn" type="submit">Save</button></div>
+                <div class="shrink">
+                    <button class="btn" type="submit">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                            </svg>
+                        </span>
+                        Save
+                    </button>
+                </div>
             </div>
         </form>
     </section>
@@ -64,7 +81,7 @@
         </form>
 
         <form th:action="@{'/employees/' + ${employee.id} + '/revoke-access'}"
-              method="post" style="margin-top:12px" th:if="${employee.username}">
+              method="post" style="margin-top:14px" th:if="${employee.username}">
             <button class="btn btn-sm btn-danger" type="submit">Revoke access</button>
             <span class="hint">Removes the login. The employee record is kept.</span>
         </form>
@@ -73,34 +90,36 @@
     <section class="panel">
         <h2>Emergency contacts</h2>
 
-        <table>
-            <thead>
-            <tr>
-                <th>Contact</th>
-                <th>Phone</th>
-                <th>Relationship</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="c : ${contacts}">
-                <form th:action="@{'/employees/' + ${employee.id} + '/emergency/' + ${c.id} + '/update'}"
-                      method="post">
-                    <td><input type="text" name="contactName" th:value="${c.contactName}" required></td>
-                    <td><input type="text" name="phoneNumber" th:value="${c.phoneNumber}" required></td>
-                    <td><input type="text" name="relationship" th:value="${c.relationship}" required></td>
-                    <td>
-                        <button class="btn btn-sm" type="submit">Save</button>
-                    </td>
-                </form>
-            </tr>
-            <tr th:if="${contacts.isEmpty()}">
-                <td colspan="4" class="empty">No emergency contacts on file.</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Contact</th>
+                    <th>Phone</th>
+                    <th>Relationship</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="c : ${contacts}">
+                    <form th:action="@{'/employees/' + ${employee.id} + '/emergency/' + ${c.id} + '/update'}"
+                          method="post">
+                        <td><input type="text" name="contactName" th:value="${c.contactName}" required></td>
+                        <td><input type="text" name="phoneNumber" th:value="${c.phoneNumber}" required></td>
+                        <td><input type="text" name="relationship" th:value="${c.relationship}" required></td>
+                        <td>
+                            <button class="btn btn-sm" type="submit">Save</button>
+                        </td>
+                    </form>
+                </tr>
+                <tr th:if="${contacts.isEmpty()}">
+                    <td colspan="4" class="empty">No emergency contacts on file.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
 
-        <div th:each="c : ${contacts}" style="display:inline-block;margin-right:6px;margin-top:10px">
+        <div th:each="c : ${contacts}" style="display:inline-block;margin-right:6px;margin-top:12px">
             <form th:action="@{'/employees/' + ${employee.id} + '/emergency/' + ${c.id} + '/delete'}"
                   method="post" class="inline">
                 <button class="btn btn-sm btn-danger" type="submit"
@@ -109,7 +128,7 @@
             </form>
         </div>
 
-        <h2 style="margin-top:24px">Add a contact</h2>
+        <h2 style="margin-top:26px">Add a contact</h2>
         <form th:action="@{'/employees/' + ${employee.id} + '/emergency'}" method="post" class="row">
             <div>
                 <label for="contactName">Name</label>
@@ -123,11 +142,20 @@
                 <label for="relationship">Relationship</label>
                 <input type="text" id="relationship" name="relationship" placeholder="Spouse" required>
             </div>
-            <div class="shrink"><button class="btn" type="submit">Add</button></div>
+            <div class="shrink">
+                <button class="btn" type="submit">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                    </span>
+                    Add
+                </button>
+            </div>
         </form>
     </section>
-
-    <a class="btn btn-quiet" th:href="@{/employees}">Back to staff list</a>
 </main>
 </body>
 </html>

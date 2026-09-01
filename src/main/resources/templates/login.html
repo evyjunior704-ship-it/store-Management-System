@@ -4,14 +4,25 @@
 <body>
 <div class="login-wrap">
     <div class="login-card">
-        <h1>StoreMS</h1>
-        <p class="sub">Sign in with your employee account.</p>
+        <a class="brand" th:href="@{/}">
+            <span class="brandmark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+                    <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+                </svg>
+            </span>
+            <span class="logo">StoreMS</span>
+        </a>
+
+        <h1>Welcome back</h1>
+        <p class="sub">Sign in with your employee account to open <span>your store&rsquo;s day.</span></p>
 
         <div class="flash flash-err" th:if="${param.error}">
-            Incorrect username or password.
+            Incorrect username or password. Try again.
         </div>
         <div class="flash flash-ok" th:if="${param.loggedOut}">
-            You have been signed out.
+            You have been signed out. See you next shift.
         </div>
 
         <!-- th:action makes Thymeleaf inject the CSRF token automatically. -->
@@ -19,12 +30,12 @@
             <div class="field">
                 <label for="username">Username</label>
                 <input type="text" id="username" name="username" autocomplete="username"
-                       required autofocus>
+                       placeholder="e.g. alopez" required autofocus>
             </div>
             <div class="field">
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password"
-                       autocomplete="current-password" required>
+                       autocomplete="current-password" placeholder="Your password" required>
             </div>
             <button class="btn btn-lg" type="submit" style="width:100%">Sign in</button>
         </form>
