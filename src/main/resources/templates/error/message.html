@@ -7,7 +7,9 @@
     <div class="panel">
         <h1 th:text="${title}">Something went wrong</h1>
         <p class="sub" th:text="${message}">Details</p>
-        <a class="btn btn-ghost" th:href="@{/}">Back to start</a>
+        <div class="actions">
+            <a class="btn btn-ghost" th:href="@{/}">Back to start</a>
+        </div>
     </div>
 </main>
 </body>

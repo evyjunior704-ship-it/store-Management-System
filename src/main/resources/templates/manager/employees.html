@@ -5,8 +5,12 @@
 <header th:replace="~{fragments/layout :: topbar('employees')}"></header>
 
 <main>
-    <h1>Employees</h1>
-    <p class="sub">Staff at <span th:text="${currentUser.storeName}">this store</span>.</p>
+    <div class="page-head">
+        <div>
+            <h1>Employees</h1>
+            <p class="sub">Staff at <span th:text="${currentUser.storeName}">this store</span>.</p>
+        </div>
+    </div>
 
     <div th:replace="~{fragments/layout :: flash}"></div>
 
@@ -46,7 +50,18 @@
                     <label for="password">Password <span class="hint">(required if username set)</span></label>
                     <input type="password" id="password" name="password" autocomplete="new-password">
                 </div>
-                <div class="shrink"><button class="btn" type="submit">Add employee</button></div>
+                <div class="shrink">
+                    <button class="btn" type="submit">
+                        <span class="icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                        </span>
+                        Add employee
+                    </button>
+                </div>
             </div>
             <p class="hint">
                 Leave username blank for staff who do not need to sign in. A new employee
@@ -58,32 +73,34 @@
 
     <section class="panel">
         <h2>Staff list</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Login</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="e : ${staff}">
-                <td th:text="${e.empFirstName} + ' ' + ${e.empLastName}">Name</td>
-                <td th:text="${e.empRole}">Role</td>
-                <td>
-                    <span th:if="${e.username}" th:text="${e.username}">user</span>
-                    <span class="pill pill-off" th:unless="${e.username}">No access</span>
-                </td>
-                <td>
-                    <a class="btn btn-sm btn-ghost" th:href="@{'/employees/' + ${e.id}}">Open</a>
-                </td>
-            </tr>
-            <tr th:if="${staff.isEmpty()}">
-                <td colspan="4" class="empty">No staff recorded at this store.</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Role</th>
+                    <th>Login</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="e : ${staff}">
+                    <td th:text="${e.empFirstName} + ' ' + ${e.empLastName}">Name</td>
+                    <td th:text="${e.empRole}">Role</td>
+                    <td>
+                        <span th:if="${e.username}" th:text="${e.username}">user</span>
+                        <span class="pill pill-off" th:unless="${e.username}">No access</span>
+                    </td>
+                    <td>
+                        <a class="btn btn-sm btn-ghost" th:href="@{'/employees/' + ${e.id}}">Open</a>
+                    </td>
+                </tr>
+                <tr th:if="${staff.isEmpty()}">
+                    <td colspan="4" class="empty">No staff recorded at this store. Add your first above.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </section>
 </main>
 </body>

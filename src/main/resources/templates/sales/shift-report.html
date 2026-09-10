@@ -5,22 +5,26 @@
 <header th:replace="~{fragments/layout :: topbar('my-sales')}"></header>
 
 <main>
-    <h1 th:text="${ending} ? 'End of shift' : 'Shift report'">Shift report</h1>
-    <p class="sub" th:if="${ending}">
-        Download your report if you need a copy, then sign out. Your manager can
-        pull these figures at any time, so nothing is lost either way.
-    </p>
-    <p class="sub" th:unless="${ending}">
-        <span th:text="${report.employeeName}">Employee</span> ·
-        <span th:text="${report.date}">date</span>
-    </p>
+    <div class="page-head">
+        <div>
+            <h1 th:text="${ending} ? 'End of shift' : 'Shift report'">Shift report</h1>
+            <p class="sub" th:if="${ending}">
+                Download your report if you need a copy, then sign out. Your manager can
+                pull these figures at any time, so nothing is lost either way.
+            </p>
+            <p class="sub" th:unless="${ending}">
+                <span th:text="${report.employeeName}">Employee</span> ·
+                <span th:text="${report.date}">date</span>
+            </p>
+        </div>
+    </div>
 
-    <div class="tiles" style="margin-bottom:20px">
+    <div class="tiles" style="margin-bottom:22px">
         <div class="tile">
             <div class="label">Transactions</div>
             <div class="value" th:text="${report.totals().transactionCount()}">0</div>
         </div>
-        <div class="tile">
+        <div class="tile tile--amber">
             <div class="label">Units sold</div>
             <div class="value" th:text="${report.totals().totalUnits()}">0</div>
         </div>
@@ -29,7 +33,7 @@
             <div class="value"
                  th:text="'$' + ${#numbers.formatDecimal(report.totals().totalRevenue(), 1, 2)}">$0.00</div>
         </div>
-        <div class="tile">
+        <div class="tile tile--amber">
             <div class="label">Average sale</div>
             <div class="value"
                  th:text="'$' + ${#numbers.formatDecimal(report.totals().averageTransactionValue(), 1, 2)}">$0.00</div>
@@ -38,33 +42,51 @@
 
     <div class="panel">
         <h2>By product</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>Product</th>
-                <th class="num">Units</th>
-                <th class="num">Revenue</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="line : ${report.lines()}">
-                <td th:text="${line.productName()}">Product</td>
-                <td class="num" th:text="${line.units()}">0</td>
-                <td class="num" th:text="'$' + ${#numbers.formatDecimal(line.revenue(), 1, 2)}">$0.00</td>
-            </tr>
-            <tr th:if="${report.lines().isEmpty()}">
-                <td colspan="3" class="empty">No sales recorded for this shift.</td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>Product</th>
+                    <th class="num">Units</th>
+                    <th class="num">Revenue</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="line : ${report.lines()}">
+                    <td th:text="${line.productName()}">Product</td>
+                    <td class="num" th:text="${line.units()}">0</td>
+                    <td class="num" th:text="'$' + ${#numbers.formatDecimal(line.revenue(), 1, 2)}">$0.00</td>
+                </tr>
+                <tr th:if="${report.lines().isEmpty()}">
+                    <td colspan="3" class="empty">No sales recorded for this shift.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="panel">
         <div class="actions">
             <a class="btn btn-ghost" th:href="@{/my-sales/report.csv(date=${report.date})}">
+                <span class="icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </span>
                 Download CSV
             </a>
             <a class="btn btn-ghost" th:href="@{/my-sales/report.pdf(date=${report.date})}">
+                <span class="icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                </span>
                 Download PDF
             </a>
 

@@ -10,8 +10,11 @@ target/
 application-local.properties
 
 ### Claude Code ###
-.claude/settings.local.json
+.claude/
 .sixth/
+
+### Docs generator (local, contains no source to commit) ###
+docgen/
 
 ### STS ###
 .apt_generated

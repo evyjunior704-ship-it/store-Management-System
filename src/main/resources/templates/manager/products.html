@@ -5,8 +5,12 @@
 <header th:replace="~{fragments/layout :: topbar('products')}"></header>
 
 <main>
-    <h1>Product catalogue</h1>
-    <p class="sub">Shared across all stores. Stock levels live under Inventory.</p>
+    <div class="page-head">
+        <div>
+            <h1>Product catalogue</h1>
+            <p class="sub">Shared across all stores. Stock levels live under Inventory.</p>
+        </div>
+    </div>
 
     <div th:replace="~{fragments/layout :: flash}"></div>
 
@@ -25,59 +29,72 @@
                 <label for="description">Description</label>
                 <input type="text" id="description" name="description" required>
             </div>
-            <div class="shrink"><button class="btn" type="submit">Add</button></div>
+            <div class="shrink">
+                <button class="btn" type="submit">
+                    <span class="icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                    </span>
+                    Add
+                </button>
+            </div>
         </form>
     </section>
 
     <section class="panel">
         <h2>Catalogue</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Manufacturer</th>
-                <th>Status</th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="p : ${products}" th:classappend="${p.active} ? '' : 'inactive'">
-                <td class="num" th:text="${p.productId}">0</td>
-                <td th:text="${p.productName}">Product</td>
-                <td th:text="${p.manufacturer}">Maker</td>
-                <td>
-                    <span class="pill pill-ok" th:if="${p.active}">Active</span>
-                    <span class="pill pill-off" th:unless="${p.active}">Discontinued</span>
-                </td>
-                <td>
-                    <div class="actions">
-                        <form th:action="@{'/products/' + ${p.productId} + '/discontinue'}"
-                              method="post" class="inline" th:if="${p.active}">
-                            <button class="btn btn-sm btn-quiet" type="submit">Discontinue</button>
-                        </form>
-                        <form th:action="@{'/products/' + ${p.productId} + '/reinstate'}"
-                              method="post" class="inline" th:unless="${p.active}">
-                            <button class="btn btn-sm btn-quiet" type="submit">Reinstate</button>
-                        </form>
+        <div class="tablewrap">
+            <table>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Manufacturer</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="p : ${products}" th:classappend="${p.active} ? '' : 'inactive'">
+                    <td class="num" th:text="${p.productId}">0</td>
+                    <td th:text="${p.productName}">Product</td>
+                    <td th:text="${p.manufacturer}">Maker</td>
+                    <td>
+                        <span class="pill pill-ok" th:if="${p.active}">Active</span>
+                        <span class="pill pill-off" th:unless="${p.active}">Discontinued</span>
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <form th:action="@{'/products/' + ${p.productId} + '/discontinue'}"
+                                  method="post" class="inline" th:if="${p.active}">
+                                <button class="btn btn-sm btn-quiet" type="submit">Discontinue</button>
+                            </form>
+                            <form th:action="@{'/products/' + ${p.productId} + '/reinstate'}"
+                                  method="post" class="inline" th:unless="${p.active}">
+                                <button class="btn btn-sm btn-quiet" type="submit">Reinstate</button>
+                            </form>
 
-                        <!-- Hard delete only offered when nothing references the product. -->
-                        <form th:action="@{'/products/' + ${p.productId} + '/delete'}"
-                              method="post" class="inline"
-                              th:if="${deletable.get(p.productId)}">
-                            <button class="btn btn-sm btn-danger" type="submit">Delete</button>
-                        </form>
-                        <span class="hint" th:unless="${deletable.get(p.productId)}">
-                            Has history
-                        </span>
-                    </div>
-                </td>
-            </tr>
-            <tr th:if="${products.isEmpty()}">
-                <td colspan="5" class="empty">The catalogue is empty.</td>
-            </tr>
-            </tbody>
-        </table>
+                            <!-- Hard delete only offered when nothing references the product. -->
+                            <form th:action="@{'/products/' + ${p.productId} + '/delete'}"
+                                  method="post" class="inline"
+                                  th:if="${deletable.get(p.productId)}">
+                                <button class="btn btn-sm btn-danger" type="submit">Delete</button>
+                            </form>
+                            <span class="hint" th:unless="${deletable.get(p.productId)}">
+                                Has history
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                <tr th:if="${products.isEmpty()}">
+                    <td colspan="5" class="empty">The catalogue is empty. Add your first product above.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
         <p class="hint">
             Products with sales or stock history cannot be deleted, because that would
             destroy the history. Discontinue them instead — they disappear from the till

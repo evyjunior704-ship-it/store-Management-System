@@ -5,21 +5,25 @@
 <header th:replace="~{fragments/layout :: topbar('dashboard')}"></header>
 
 <main>
-    <h1>Dashboard</h1>
-    <p class="sub">
-        <span th:text="${currentUser.storeName}">Store</span> ·
-        <span th:text="${today}">today</span>
-    </p>
+    <div class="page-head">
+        <div>
+            <h1>Dashboard</h1>
+            <p class="sub">
+                <span th:text="${currentUser.storeName}">Store</span> ·
+                <span th:text="${today}">today</span>
+            </p>
+        </div>
+    </div>
 
     <div th:replace="~{fragments/layout :: flash}"></div>
 
-    <div class="tiles" style="margin-bottom:20px">
+    <div class="tiles" style="margin-bottom:22px">
         <div class="tile">
             <div class="label">Revenue today</div>
             <div class="value"
                  th:text="'$' + ${#numbers.formatDecimal(totals.totalRevenue(), 1, 2)}">$0.00</div>
         </div>
-        <div class="tile">
+        <div class="tile tile--amber">
             <div class="label">Transactions</div>
             <div class="value" th:text="${totals.transactionCount()}">0</div>
         </div>
@@ -27,7 +31,8 @@
             <div class="label">Units sold</div>
             <div class="value" th:text="${totals.totalUnits()}">0</div>
         </div>
-        <div class="tile">
+        <div class="tile tile--plain"
+             th:classappend="${lowStock.size() == 0} ? '' : 'tile--amber'">
             <div class="label">Low stock items</div>
             <div class="value" th:text="${lowStock.size()}">0</div>
         </div>
@@ -36,58 +41,72 @@
     <div class="cols">
         <section class="panel">
             <h2>Needs attention</h2>
-            <p class="hint" style="margin-top:-8px;margin-bottom:12px">
+            <p class="hint" style="margin-top:-6px;margin-bottom:14px">
                 At or below <span th:text="${lowStockThreshold}">20</span> units.
             </p>
-            <table>
-                <thead>
-                <tr>
-                    <th>Product</th>
-                    <th class="num">Stock</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="item : ${lowStock}"
-                    th:classappend="${item.quantity == 0} ? 'out' : 'low'">
-                    <td th:text="${item.inStoreProductName}">Product</td>
-                    <td class="num" th:text="${item.quantity}">0</td>
-                    <td><a class="btn btn-sm btn-ghost" th:href="@{/inventory}">Restock</a></td>
-                </tr>
-                <tr th:if="${lowStock.isEmpty()}">
-                    <td colspan="3" class="empty">Everything is well stocked.</td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="tablewrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th class="num">Stock</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="item : ${lowStock}"
+                        th:classappend="${item.quantity == 0} ? 'out' : 'low'">
+                        <td th:text="${item.inStoreProductName}">Product</td>
+                        <td class="num" th:text="${item.quantity}">0</td>
+                        <td><a class="btn btn-sm btn-ghost" th:href="@{/inventory}">Restock</a></td>
+                    </tr>
+                    <tr th:if="${lowStock.isEmpty()}">
+                        <td colspan="3" class="empty">Everything is well stocked. Nice shelf.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
 
         <section class="panel">
-            <h2>Today's shift reports</h2>
-            <table>
-                <thead>
-                <tr>
-                    <th>Employee</th>
-                    <th class="num">Sales</th>
-                    <th class="num">Revenue</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="r : ${shiftReports}">
-                    <td th:text="${r.employeeName()}">Employee</td>
-                    <td class="num" th:text="${r.totals().transactionCount()}">0</td>
-                    <td class="num"
-                        th:text="'$' + ${#numbers.formatDecimal(r.totals().totalRevenue(), 1, 2)}">$0.00</td>
-                    <td>
-                        <a class="btn btn-sm btn-ghost"
-                           th:href="@{/reports/employee.csv(employeeId=${r.employeeId()},date=${today})}">CSV</a>
-                    </td>
-                </tr>
-                <tr th:if="${shiftReports.isEmpty()}">
-                    <td colspan="4" class="empty">Nobody has recorded a sale today.</td>
-                </tr>
-                </tbody>
-            </table>
+            <h2>Today&rsquo;s shift reports</h2>
+            <div class="tablewrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th class="num">Sales</th>
+                        <th class="num">Revenue</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="r : ${shiftReports}">
+                        <td th:text="${r.employeeName()}">Employee</td>
+                        <td class="num" th:text="${r.totals().transactionCount()}">0</td>
+                        <td class="num"
+                            th:text="'$' + ${#numbers.formatDecimal(r.totals().totalRevenue(), 1, 2)}">$0.00</td>
+                        <td>
+                            <a class="btn btn-sm btn-ghost"
+                               th:href="@{/reports/employee.csv(employeeId=${r.employeeId()},date=${today})}">
+                                <span class="icon" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                         stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="7 10 12 15 17 10"/>
+                                        <line x1="12" y1="15" x2="12" y2="3"/>
+                                    </svg>
+                                </span>
+                                CSV
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${shiftReports.isEmpty()}">
+                        <td colspan="4" class="empty">Nobody has recorded a sale today.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </section>
     </div>
 </main>
